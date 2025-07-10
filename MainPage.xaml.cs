@@ -18,9 +18,10 @@ public partial class MainPage : ContentPage
         {
             MainThread.BeginInvokeOnMainThread(() =>
             {
-                NoteLabel.Text = note;
+                // Atualiza a nota na UI
+                DetectedNoteLabel.Text = $"Nota: {note}";
 
-                // Parse: nota + cents
+                // Extrai o valor em cents (caso queira usar a barra)
                 var match = Regex.Match(note, @"([A-G]#?)\s*\(([-+0-9]+)\s*cents\)");
                 if (match.Success)
                 {
@@ -30,29 +31,81 @@ public partial class MainPage : ContentPage
             });
         };
 
+
     }
+    private async void PluckString_Clicked(object sender, EventArgs e)
+    {
+        try
+        {
+            DisplayAlert("Afinador", "Pronto para afinar! Toque uma corda.", "OK");
+            await _audioManager.Start();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erro ao iniciar afinador: {ex.Message}");
+            await DisplayAlert("Erro", ex.Message, "OK");
+        }
+    }
+
+    //private void PluckString_Clicked(object sender, EventArgs e)
+    //{
+    //    // This is where you put the logic for when the "PLUCK A STRING" button is clicked.
+    //    // For example, you might want to start the tuner here, or display a message.
+       
+
+    //    // You might also want to start the audio manager if it's not already running
+    //    // If your original "StartTuner_Clicked" button is being replaced, you can move its logic here:
+    //    // try
+    //    // {
+    //    //     await _audioManager.Start();
+    //    // }
+    //    // catch (Exception ex)
+    //    // {
+    //    //     Console.WriteLine($"Erro ao iniciar afinador: {ex.Message}");
+    //    //     DisplayAlert("Erro", ex.Message, "OK");
+    //    // }
+    //}
+
     private void UpdateTuningBar(int cents)
     {
-        // Limite visual entre -50 e +50
         int clampedCents = Math.Max(-50, Math.Min(50, cents));
 
-        // Evita erro se largura ainda não foi definida (antes do layout renderizar)
-        if (TuningBarBackground.Width <= 0)
+        // Use the new TuningBarGrid for width calculation
+        // Ensure TuningBarGrid has an x:Name in your XAML.
+        // If you used the provided XAML, it already has x:Name="TuningBarGrid"
+        if (TuningBarGrid.Width <= 0)
             return;
 
         double percent = (clampedCents + 50) / 100.0;
-        double barWidth = TuningBarBackground.Width;
-        double x = percent * barWidth;
+        double barWidth = TuningBarGrid.Width; // Reference the new Grid's width
 
-        // Atualiza posição do ponteiro
-        TuningIndicator.TranslationX = x - (TuningIndicator.Width / 2);
+        // The TranslationX calculation needs to be adjusted because the indicator is now inside a Grid
+        // and its position is relative to its parent cell or the grid itself.
+        // A simpler way for a visual bar might be to directly set its Grid.Column.
+        // However, if you want smooth movement, TranslationX on the entire grid or a container within it
+        // that holds the indicator might be more appropriate.
+        // For now, let's keep the TranslationX logic but be aware it might need fine-tuning.
 
-        // Atualiza cor: Verde perto de 0, Vermelho nas pontas
+        // Calculate the target X position within the TuningBarGrid
+        // The TuningIndicator is a specific column. We need to figure out which column it should be in.
+        // Assuming 25 columns in TuningBarGrid (0 to 24)
+        int targetColumn = (int)Math.Round(percent * (TuningBarGrid.ColumnDefinitions.Count - 1));
+        Grid.SetColumn(TuningIndicator, targetColumn);
+
+        // Optional: If you want finer movement within a column, you'd need a more complex setup,
+        // potentially by placing the TuningIndicator inside an AbsoluteLayout within a single Grid.Column,
+        // or by calculating its TranslationX very precisely relative to the Grid's total width
+        // while it's in a single column span across the grid.
+        // For a segmented bar as in the image, moving the column might be enough.
+        // Let's remove the TranslationX on the indicator directly if we are setting Grid.Column.
+        // TuningIndicator.TranslationX = x - (TuningIndicator.Width / 2); // Remove or re-evaluate this line
+
         double abs = Math.Abs(cents);
-        TuningIndicator.Color = abs < 5 ? Colors.Green
-                              : abs < 15 ? Colors.Orange
-                                         : Colors.Red;
+        TuningIndicator.Color = abs < 5 ? Colors.LimeGreen
+                                     : abs < 15 ? Colors.Orange
+                                                : Colors.Red;
     }
+
 
 
     private async void StartTuner_Clicked(object sender, EventArgs e)
