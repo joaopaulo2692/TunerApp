@@ -14,20 +14,51 @@ public class FrequencyAnalyzer
         _fft = new RealFft(_fftSize);
     }
 
+    //public double DetectFrequency(float[] samples, int sampleRate)
+    //{
+    //    if (samples.Length < _fftSize)
+    //        Array.Resize(ref samples, _fftSize);
+
+    //    var spectrum = new float[_fftSize / 2 + 1];
+    //    _fft.PowerSpectrum(samples, spectrum);
+
+    //    int maxIndex = spectrum
+    //        .Select((val, idx) => new { val, idx })
+    //        .OrderByDescending(x => x.val)
+    //        .First().idx;
+
+    //    double frequency = (double)maxIndex * sampleRate / _fftSize;
+    //    return frequency;
+    //}
     public double DetectFrequency(float[] samples, int sampleRate)
     {
-        if (samples.Length < _fftSize)
-            Array.Resize(ref samples, _fftSize);
+        // Aqui vai seu algoritmo (autocorrelação, FFT, etc)
+        // Exemplo simples de autocorrelação:
 
-        var spectrum = new float[_fftSize / 2 + 1];
-        _fft.PowerSpectrum(samples, spectrum);
+        int size = samples.Length;
+        double maxCorrelation = 0;
+        int bestLag = 0;
 
-        int maxIndex = spectrum
-            .Select((val, idx) => new { val, idx })
-            .OrderByDescending(x => x.val)
-            .First().idx;
+        for (int lag = 20; lag < size / 2; lag++)
+        {
+            double correlation = 0;
 
-        double frequency = (double)maxIndex * sampleRate / _fftSize;
-        return frequency;
+            for (int i = 0; i < size - lag; i++)
+            {
+                correlation += samples[i] * samples[i + lag];
+            }
+
+            if (correlation > maxCorrelation)
+            {
+                maxCorrelation = correlation;
+                bestLag = lag;
+            }
+        }
+
+        if (bestLag == 0)
+            return 0;
+
+        return sampleRate / (double)bestLag;
     }
+
 }

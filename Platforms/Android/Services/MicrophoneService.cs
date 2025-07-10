@@ -25,10 +25,15 @@ namespace TunerApp.Platforms.Android.Services
             }
 
 
-            var _bufferSize = AudioRecord.GetMinBufferSize(
-                44100,
-                ChannelIn.Mono,
-                Encoding.Pcm16bit);
+            //var _bufferSize = AudioRecord.GetMinBufferSize(
+            //    44100,
+            //    ChannelIn.Mono,
+            //    Encoding.Pcm16bit);
+            // Sugestão: use pelo menos 8192 amostras
+            var _bufferSize = Math.Max(
+                AudioRecord.GetMinBufferSize(44100, ChannelIn.Mono, Encoding.Pcm16bit),
+                8192);
+
 
             _audioRecord = new AudioRecord(
                 AudioSource.Mic,

@@ -20,10 +20,35 @@ public class AudioCaptureManager
         await _microphoneService.StartRecordingAsync(buffer =>
         {
             float[] samples = ConvertToFloat(buffer);
+            ApplyHanningWindow(samples);
+
+
+            float amplitude = samples.Select(x => Math.Abs(x)).Average();
+            if (amplitude < 0.01f)
+            {
+                OnNoteDetected?.Invoke("Sem Sinal");
+                return;
+            }
+
             double freq = _analyzer.DetectFrequency(samples, SampleRate);
-            string note = NoteDetector.GetNoteFromFrequency(freq);
-            OnNoteDetected?.Invoke(note);
+            if (double.IsNaN(freq) || freq <= 0)
+            {
+                OnNoteDetected?.Invoke("Sem Sinal");
+                return;
+            }
+
+            var noteInfo = NoteDetector.GetNoteInfo(freq); // novo método sugerido
+            OnNoteDetected?.Invoke($"{noteInfo.Note} ({noteInfo.Cents:+#;-#;0} cents)");
         });
+
+    }
+    private void ApplyHanningWindow(float[] samples)
+    {
+        int N = samples.Length;
+        for (int i = 0; i < N; i++)
+        {
+            samples[i] *= 0.5f * (1 - (float)Math.Cos(2 * Math.PI * i / (N - 1)));
+        }
     }
 
     public void Stop()
