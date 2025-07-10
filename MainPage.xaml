@@ -1,5 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage 
+﻿<ContentPage 
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     x:Class="TunerApp.MainPage">
@@ -10,6 +9,21 @@
                Text="Tocando..."
                FontSize="48"
                HorizontalOptions="Center" />
+
+        <!-- Indicador visual de afinação -->
+        <Grid x:Name="TuningBarBackground"
+      WidthRequest="300"
+      HeightRequest="20"
+      BackgroundColor="LightGray">
+
+            <BoxView x:Name="TuningIndicator"
+             WidthRequest="4"
+             HeightRequest="20"
+             Color="Red"
+             HorizontalOptions="Start" />
+        </Grid>
+
+
 
         <Button Text="Iniciar Afinador" Clicked="StartTuner_Clicked"/>
         <Button Text="Parar" Clicked="StopTuner_Clicked"/>
