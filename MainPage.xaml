@@ -86,7 +86,7 @@
             <Label x:Name="DetectedNoteLabel"
                    Text="Nota: --"
                    TextColor="White"
-                   FontSize="48"
+                   FontSize="25"
                    FontAttributes="Bold"
                    HorizontalOptions="Center" />
 
@@ -177,36 +177,49 @@
         </VerticalStackLayout>
 
         <!-- Botão de afinar -->
-        <Button Grid.Row="3"
-                Text="AFINAR"
-                TextColor="White"
-                BackgroundColor="#2A2A2A"
-                BorderColor="#3A3A3A"
-                BorderWidth="1"
-                CornerRadius="10"
-                FontSize="20"
-                FontAttributes="Bold"
-                Padding="30,20"
-                HorizontalOptions="Center"
-                VerticalOptions="Center"
-                WidthRequest="250"
-                Clicked="PluckString_Clicked" />
+        <Button x:Name="TuneButton"
+        Grid.Row="3"
+        Text="AFINAR"
+        TextColor="White"
+        BackgroundColor="#2A2A2A"
+        BorderColor="#3A3A3A"
+        BorderWidth="1"
+        CornerRadius="10"
+        FontSize="20"
+        FontAttributes="Bold"
+        Padding="30,20"
+        HorizontalOptions="Center"
+        VerticalOptions="Center"
+        WidthRequest="250"
+        Clicked="PluckString_Clicked" />
+
 
         <!-- Pitch de referência -->
         <VerticalStackLayout Grid.Row="4"
-                             HorizontalOptions="Center"
-                             VerticalOptions="End"
-                             Margin="0,0,0,20">
+                     HorizontalOptions="Center"
+                     VerticalOptions="End"
+                     Margin="0,0,0,20"
+                     Spacing="10">
+
             <Label Text="AFINAÇÃO DE REFERÊNCIA"
-                   TextColor="LightGray"
-                   FontSize="14"
-                   HorizontalOptions="Center" />
+           TextColor="LightGray"
+           FontSize="14"
+           HorizontalOptions="Center" />
+
             <Label x:Name="ReferencePitchLabel"
-                   Text="A: 440 Hz"
-                   TextColor="White"
-                   FontSize="24"
-                   FontAttributes="Bold"
-                   HorizontalOptions="Center" />
+           Text="A: 440 Hz"
+           TextColor="White"
+           FontSize="24"
+           FontAttributes="Bold"
+           HorizontalOptions="Center" />
+
+            <Slider x:Name="PitchSlider"
+            Minimum="430"
+            Maximum="450"
+            Value="440"
+            ValueChanged="PitchSlider_ValueChanged"
+            WidthRequest="250" />
         </VerticalStackLayout>
+
     </Grid>
 </ContentPage>

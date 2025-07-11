@@ -10,7 +10,7 @@ public partial class MainPage : ContentPage
 {
     private readonly AudioCaptureManager _audioManager;
     private TuningType currentTuning = TuningType.Standard;
-
+    private double _referencePitch = 440.0;
     private GuitarString? selectedString;
 
     public MainPage(AudioCaptureManager audioManager)
@@ -55,27 +55,6 @@ public partial class MainPage : ContentPage
     }
 
 
-    //private void TuningPicker_SelectedIndexChanged(object sender, EventArgs e)
-    //{
-    //    if (TuningPicker.SelectedIndex == -1)
-    //        return;
-
-    //    string selectedTuning = TuningPicker.Items[TuningPicker.SelectedIndex];
-    //    SelectedTuningLabel.Text = $"Afinação: {selectedTuning}";
-    //    TuningPicker.IsVisible = false;
-
-    //    // Atualize a afinação no AudioCaptureManager
-    //    var tuningEnum = Enum.Parse<TuningType>(selectedTuning.Replace(" ", ""));
-    //    _audioManager.SetTuning(tuningEnum);
-
-    //    // Atualiza botões de cordas com base na afinação selecionada
-    //    UpdateStringButtons(tuningEnum);
-    //}
-
-    //private void ToggleTuningPicker(object sender, EventArgs e)
-    //{
-    //    TuningPicker.IsVisible = !TuningPicker.IsVisible;
-    //}
 
 
 
@@ -96,6 +75,8 @@ public partial class MainPage : ContentPage
     {
         try
         {
+            TuneButton.IsVisible = false;
+            TuneButton.Text = "Afinando...";
             await DisplayAlert("Afinador", "Pronto para afinar! Toque uma corda.", "OK");
             await _audioManager.Start();
         }
@@ -105,6 +86,18 @@ public partial class MainPage : ContentPage
             await DisplayAlert("Erro", ex.Message, "OK");
         }
     }
+
+  
+
+    private void PitchSlider_ValueChanged(object sender, ValueChangedEventArgs e)
+    {
+        _referencePitch = Math.Round(e.NewValue, 1);
+        ReferencePitchLabel.Text = $"A: {_referencePitch} Hz";
+
+        // Atualize o valor no AudioCaptureManager
+        _audioManager.SetA4Reference(_referencePitch);
+    }
+
 
     private void OnSelectString(object sender, EventArgs e)
     {
@@ -167,16 +160,16 @@ public partial class MainPage : ContentPage
     }
 
     // Dicionário de afinação padrão
-    public static class GuitarTuning
-    {
-        public static readonly Dictionary<GuitarString, (string Note, double Frequency)> StandardTuning = new()
-        {
-            { GuitarString.E6, ("E2", 82.41) },
-            { GuitarString.A5, ("A2", 110.00) },
-            { GuitarString.D4, ("D3", 146.83) },
-            { GuitarString.G3, ("G3", 196.00) },
-            { GuitarString.B2, ("B3", 246.94) },
-            { GuitarString.E1, ("E4", 329.63) },
-        };
-    }
+    //public static class GuitarTuning
+    //{
+    //    public static readonly Dictionary<GuitarString, (string Note, double Frequency)> StandardTuning = new()
+    //    {
+    //        { GuitarString.E6, ("E2", 82.41) },
+    //        { GuitarString.A5, ("A2", 110.00) },
+    //        { GuitarString.D4, ("D3", 146.83) },
+    //        { GuitarString.G3, ("G3", 196.00) },
+    //        { GuitarString.B2, ("B3", 246.94) },
+    //        { GuitarString.E1, ("E4", 329.63) },
+    //    };
+    //}
 }

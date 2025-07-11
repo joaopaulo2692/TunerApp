@@ -22,14 +22,19 @@ public class AudioCaptureManager
     {
         _targetString = guitarString;
     }
+    private double _a4Reference = 440.0; // Valor padrão
+
+    public void SetA4Reference(double newReference)
+    {
+        _a4Reference = newReference;
+    }
+
     public async Task Start()
     {
-
         await _microphoneService.StartRecordingAsync(buffer =>
         {
             float[] samples = ConvertToFloat(buffer);
             ApplyHanningWindow(samples);
-
 
             float amplitude = samples.Select(x => Math.Abs(x)).Average();
             if (amplitude < 0.01f)
@@ -44,29 +49,28 @@ public class AudioCaptureManager
                 OnNoteDetected?.Invoke("Sem Sinal");
                 return;
             }
+
             if (_targetString != null)
             {
-                var target = GuitarTuning.StandardTuning[_targetString.Value];
+                //var target = GuitarTuning.StandardTuning[_targetString.Value];
+                var target = GuitarTunings.Tunings[_currentTuning][_targetString.Value];
+
+                //var target = GuitarTunings.Tunings[TuningType.Standard];
                 int cents = (int)(1200 * Math.Log2(freq / target.Frequency));
-                string note = NoteDetector.GetNoteInfo(freq).Note;
+                string note = NoteDetector.GetNoteInfo(freq, _a4Reference).Note;
                 OnNoteDetected?.Invoke($"{note} ({cents:+#;-#;0} cents)");
             }
             else
             {
-                //var noteInfo = NoteDetector.GetNoteInfo(freq);
-                //OnNoteDetected?.Invoke($"{noteInfo.Note} ({noteInfo.Cents:+#;-#;0} cents)");
-                var noteInfo = NoteDetector.GetNoteInfo(freq);
+                var noteInfo = NoteDetector.GetNoteInfo(freq, _a4Reference);
                 string guessedString = DetectStringFromFrequency(freq);
 
-                OnNoteDetected?.Invoke($"{noteInfo.Note} ({noteInfo.Cents:+#;-#;0} cents) - Provável corda: {guessedString}");
+                //OnNoteDetected?.Invoke($"{noteInfo.Note} ({noteInfo.Cents:+#;-#;0} cents) - Provável corda: {guessedString}");
+                OnNoteDetected?.Invoke($"{noteInfo.Note} ({noteInfo.Cents:+#;-#;0} cents)");
             }
-
-       
-
-
         });
-
     }
+
 
     public void SetTuning(TuningType tuning)
     {
