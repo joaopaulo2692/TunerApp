@@ -10,23 +10,37 @@ public class AudioCaptureManager
     private const int SampleRate = 44100;
     private GuitarString? _targetString;
     public event Action<string>? OnNoteDetected;
+
     private TuningType _currentTuning = TuningType.Standard;
+
+    // Frequência de referência ajustável (padrão 440 Hz)
+    private double _referenceA4Frequency = 440.0;
+    public double ReferenceA4Frequency
+    {
+        get => _referenceA4Frequency;
+        set
+        {
+            if (value > 0)
+            {
+                _referenceA4Frequency = value;
+                // Se desejar, pode disparar evento para atualizar UI aqui
+            }
+        }
+    }
 
     public AudioCaptureManager(IMicrophoneService microphoneService)
     {
         _microphoneService = microphoneService ?? throw new ArgumentNullException(nameof(microphoneService));
     }
 
-
     public void SetTargetString(GuitarString? guitarString)
     {
         _targetString = guitarString;
     }
-    private double _a4Reference = 440.0; // Valor padrão
 
-    public void SetA4Reference(double newReference)
+    public void SetTuning(TuningType tuning)
     {
-        _a4Reference = newReference;
+        _currentTuning = tuning;
     }
 
     public async Task Start()
@@ -52,41 +66,33 @@ public class AudioCaptureManager
 
             if (_targetString != null)
             {
-                //var target = GuitarTuning.StandardTuning[_targetString.Value];
                 var target = GuitarTunings.Tunings[_currentTuning][_targetString.Value];
 
-                //var target = GuitarTunings.Tunings[TuningType.Standard];
-                int cents = (int)(1200 * Math.Log2(freq / target.Frequency));
-                string note = NoteDetector.GetNoteInfo(freq, _a4Reference).Note;
+                // Ajusta frequência da nota alvo conforme referência
+                double adjustedFrequency = target.Frequency * (_referenceA4Frequency / 440.0);
+
+                int cents = (int)(1200 * Math.Log2(freq / adjustedFrequency));
+                string note = NoteDetector.GetNoteInfo(freq, _referenceA4Frequency).Note;
                 OnNoteDetected?.Invoke($"{note} ({cents:+#;-#;0} cents)");
             }
             else
             {
-                var noteInfo = NoteDetector.GetNoteInfo(freq, _a4Reference);
+                var noteInfo = NoteDetector.GetNoteInfo(freq, _referenceA4Frequency);
                 string guessedString = DetectStringFromFrequency(freq);
-
-                //OnNoteDetected?.Invoke($"{noteInfo.Note} ({noteInfo.Cents:+#;-#;0} cents) - Provável corda: {guessedString}");
                 OnNoteDetected?.Invoke($"{noteInfo.Note} ({noteInfo.Cents:+#;-#;0} cents)");
             }
         });
-    }
-
-
-    public void SetTuning(TuningType tuning)
-    {
-        _currentTuning = tuning;
     }
 
     private string DetectStringFromFrequency(double freq)
     {
         var strings = GuitarTunings.Tunings[_currentTuning];
 
+        // Ordena as cordas pela menor diferença de frequência ajustada e retorna a corda mais próxima
         return strings
-    .OrderBy(pair => Math.Abs(pair.Value.Frequency - freq))
-    .First().Key.ToString();
+            .OrderBy(pair => Math.Abs((pair.Value.Frequency * (_referenceA4Frequency / 440.0)) - freq))
+            .First().Key.ToString();
     }
-
-    
 
     private void ApplyHanningWindow(float[] samples)
     {

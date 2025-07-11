@@ -1,5 +1,4 @@
 ﻿using Microsoft.Maui.Controls;
-using Microsoft.Maui.Controls.PlatformConfiguration.AndroidSpecific;
 using System.Text.RegularExpressions;
 using TunerApp.Services;
 using static TunerApp.Services.Enums;
@@ -9,16 +8,24 @@ namespace TunerApp;
 public partial class MainPage : ContentPage
 {
     private readonly AudioCaptureManager _audioManager;
+
     private TuningType currentTuning = TuningType.Standard;
     private double _referencePitch = 440.0;
+    private bool _userChangedReferencePitch = false;
     private GuitarString? selectedString;
 
     public MainPage(AudioCaptureManager audioManager)
     {
         InitializeComponent();
+
         _audioManager = audioManager;
 
-        // Evento de detecção de nota
+        // Inicializa referência A4
+        _audioManager.ReferenceA4Frequency = _referencePitch;
+        PitchSlider.Value = _referencePitch;
+        ReferencePitchLabel.Text = $"A: {_referencePitch} Hz";
+
+        // Assina evento de nota detectada
         _audioManager.OnNoteDetected += note =>
         {
             MainThread.BeginInvokeOnMainThread(() =>
@@ -33,7 +40,11 @@ public partial class MainPage : ContentPage
                 }
             });
         };
+
+        // Inicializa botões das cordas conforme afinação padrão
+        UpdateStringButtons(currentTuning);
     }
+
     private void ToggleTuningList(object sender, EventArgs e)
     {
         TuningOptionsList.IsVisible = !TuningOptionsList.IsVisible;
@@ -48,15 +59,12 @@ public partial class MainPage : ContentPage
 
             if (Enum.TryParse<TuningType>(selectedTuning, out var tuningEnum))
             {
-                _audioManager.SetTuning(tuningEnum);
-                UpdateStringButtons(tuningEnum);
+                currentTuning = tuningEnum;
+                _audioManager.SetTuning(currentTuning);
+                UpdateStringButtons(currentTuning);
             }
         }
     }
-
-
-
-
 
     private void UpdateStringButtons(TuningType tuning)
     {
@@ -69,7 +77,6 @@ public partial class MainPage : ContentPage
         ButtonB2.Text = $"2ª {tuningMap[GuitarString.B2].Note}";
         ButtonE1.Text = $"1ª {tuningMap[GuitarString.E1].Note}";
     }
-
 
     private async void PluckString_Clicked(object sender, EventArgs e)
     {
@@ -84,37 +91,46 @@ public partial class MainPage : ContentPage
         {
             Console.WriteLine($"Erro ao iniciar afinador: {ex.Message}");
             await DisplayAlert("Erro", ex.Message, "OK");
+            TuneButton.IsVisible = true;
+            TuneButton.Text = "AFINAR";
         }
     }
-
-  
 
     private void PitchSlider_ValueChanged(object sender, ValueChangedEventArgs e)
     {
+        _userChangedReferencePitch = true;
         _referencePitch = Math.Round(e.NewValue, 1);
         ReferencePitchLabel.Text = $"A: {_referencePitch} Hz";
-
-        // Atualize o valor no AudioCaptureManager
-        _audioManager.SetA4Reference(_referencePitch);
+        _audioManager.ReferenceA4Frequency = _referencePitch;
     }
-
 
     private void OnSelectString(object sender, EventArgs e)
     {
-        if (sender is Microsoft.Maui.Controls.Button button &&
+        if (sender is Button button &&
             Enum.TryParse<GuitarString>(button.CommandParameter?.ToString(), out var selected))
         {
             selectedString = selected;
+
             var tuning = GuitarTunings.Tunings[currentTuning];
-            var (note, freq) = tuning[selected];
-            ReferencePitchLabel.Text = $"Afine para: {note} ({freq} Hz)";
+            var target = tuning[selected];
+
+            double freqToShow = target.Frequency;
+
+            if (_userChangedReferencePitch)
+            {
+                freqToShow *= (_referencePitch / 440.0);
+            }
+
+            // NÃO altere o ReferencePitchLabel!
+            SelectedStringTargetLabel.Text = $"Afine para: {target.Note} ({freqToShow:F2} Hz)";
         }
     }
+
 
 
     private void UpdateTuningBar(int cents)
     {
-        int clampedCents = Math.Max(-50, Math.Min(50, cents));
+        int clampedCents = Math.Clamp(cents, -50, 50);
 
         if (TuningBarGrid.Width <= 0)
             return;
@@ -145,6 +161,8 @@ public partial class MainPage : ContentPage
     private void StopTuner_Clicked(object sender, EventArgs e)
     {
         _audioManager.Stop();
+        TuneButton.IsVisible = true;
+        TuneButton.Text = "AFINAR";
     }
 
     protected override void OnDisappearing()
@@ -158,18 +176,4 @@ public partial class MainPage : ContentPage
     {
         E6, A5, D4, G3, B2, E1
     }
-
-    // Dicionário de afinação padrão
-    //public static class GuitarTuning
-    //{
-    //    public static readonly Dictionary<GuitarString, (string Note, double Frequency)> StandardTuning = new()
-    //    {
-    //        { GuitarString.E6, ("E2", 82.41) },
-    //        { GuitarString.A5, ("A2", 110.00) },
-    //        { GuitarString.D4, ("D3", 146.83) },
-    //        { GuitarString.G3, ("G3", 196.00) },
-    //        { GuitarString.B2, ("B3", 246.94) },
-    //        { GuitarString.E1, ("E4", 329.63) },
-    //    };
-    //}
 }

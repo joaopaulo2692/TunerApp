@@ -219,6 +219,14 @@
             Value="440"
             ValueChanged="PitchSlider_ValueChanged"
             WidthRequest="250" />
+
+            <!-- Novo Label para mostrar info da corda -->
+            <Label x:Name="SelectedStringTargetLabel"
+           Text=""
+           TextColor="LightBlue"
+           FontSize="18"
+           HorizontalOptions="Center" />
+
         </VerticalStackLayout>
 
     </Grid>
