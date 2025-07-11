@@ -5,47 +5,84 @@
     BackgroundColor="#121212">
 
     <Grid RowDefinitions="Auto, Auto, Auto, *, Auto" ColumnDefinitions="*">
-        <Label Text="Standard" TextColor="White" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
-        <Label Text="Selecione a corda" TextColor="White" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
+    
+        <!-- Picker de afinação -->
+        <!-- Seção de afinação -->
         <Grid Grid.Row="0" Padding="20">
-            <Label Text="Standard" TextColor="White" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
-            <!--<Label Text="[Music]" TextColor="White" FontSize="16" HorizontalOptions="Start" VerticalOptions="Center" />-->
-            <ImageButton Source="settings_icon.png" HorizontalOptions="End" VerticalOptions="Center" WidthRequest="24" HeightRequest="24" BackgroundColor="Transparent" />
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!-- Nome da afinação selecionada -->
+            <Label x:Name="SelectedTuningLabel"
+           Text="Afinação: Standard"
+           FontSize="16"
+           TextColor="White"
+           FontAttributes="Bold"
+           VerticalOptions="Center"
+           HorizontalOptions="Start" />
+
+            <!-- Botão para mostrar Picker -->
+            <Button Text="Alterar Afinação"
+            Grid.Row="0"
+            HorizontalOptions="End"
+            Clicked="ToggleTuningPicker"
+            BackgroundColor="Transparent"
+            TextColor="LightBlue" />
+
+            <!-- Picker visível somente após clicar no botão -->
+            <Picker x:Name="TuningPicker"
+            Grid.Row="1"
+            Title="Selecione a Afinação"
+            SelectedIndexChanged="TuningPicker_SelectedIndexChanged"
+            IsVisible="False"
+            TextColor="White"
+            BackgroundColor="#1E1E1E">
+                <Picker.ItemsSource>
+                    <x:Array Type="{x:Type x:String}">
+                        <x:String>Standard</x:String>
+                        <x:String>HalfStepDown</x:String>
+                        <x:String>OpenD</x:String>
+                        <x:String>OpenG</x:String>
+                    </x:Array>
+                </Picker.ItemsSource>
+
+            </Picker>
         </Grid>
 
-        <!--<Grid Grid.Row="1" Margin="0,30,0,0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-            <Label Grid.Column="0" Text="E" TextColor="White" FontSize="30" FontAttributes="Bold" HorizontalOptions="Center" />
-            <Label Grid.Column="1" Text="A" TextColor="White" FontSize="30" FontAttributes="Bold" HorizontalOptions="Center" />
-            <Label Grid.Column="2" Text="D" TextColor="White" FontSize="30" FontAttributes="Bold" HorizontalOptions="Center" />
-            <Label Grid.Column="3" Text="G" TextColor="White" FontSize="30" FontAttributes="Bold" HorizontalOptions="Center" />
-            <Label Grid.Column="4" Text="B" TextColor="White" FontSize="30" FontAttributes="Bold" HorizontalOptions="Center" />
-            <Label Grid.Column="5" Text="E" TextColor="White" FontSize="30" FontAttributes="Bold" HorizontalOptions="Center" />
-        </Grid>-->
-        <HorizontalStackLayout Margin="10" HorizontalOptions="Center">
-            <Button Text="6ª E" Clicked="OnSelectString" CommandParameter="E6"/>
-            <Button Text="5ª A" Clicked="OnSelectString" CommandParameter="A5"/>
-            <Button Text="4ª D" Clicked="OnSelectString" CommandParameter="D4"/>
-            <Button Text="3ª G" Clicked="OnSelectString" CommandParameter="G3"/>
-            <Button Text="2ª B" Clicked="OnSelectString" CommandParameter="B2"/>
-            <Button Text="1ª E" Clicked="OnSelectString" CommandParameter="E1"/>
+
+        <!-- Botões de seleção de corda -->
+        <HorizontalStackLayout Grid.Row="1" Margin="6" HorizontalOptions="Center" Spacing="4">
+            <Button x:Name="ButtonE6" Text="6ª E" Clicked="OnSelectString" CommandParameter="E6"
+            Padding="6,4" FontSize="14" />
+            <Button x:Name="ButtonA5" Text="5ª A" Clicked="OnSelectString" CommandParameter="A5"
+            Padding="6,4" FontSize="14" />
+            <Button x:Name="ButtonD4" Text="4ª D" Clicked="OnSelectString" CommandParameter="D4"
+            Padding="6,4" FontSize="14" />
+            <Button x:Name="ButtonG3" Text="3ª G" Clicked="OnSelectString" CommandParameter="G3"
+            Padding="6,4" FontSize="14" />
+            <Button x:Name="ButtonB2" Text="2ª B" Clicked="OnSelectString" CommandParameter="B2"
+            Padding="6,4" FontSize="14" />
+            <Button x:Name="ButtonE1" Text="1ª E" Clicked="OnSelectString" CommandParameter="E1"
+            Padding="6,4" FontSize="14" />
         </HorizontalStackLayout>
 
 
+
+        <!-- Afinador visual -->
         <VerticalStackLayout Grid.Row="2" HorizontalOptions="Center" Spacing="10" Margin="0,50,0,0">
+
             <Label x:Name="DetectedNoteLabel"
-           Text="Nota: --"
-           TextColor="White"
-           FontSize="48"
-           FontAttributes="Bold"
-           HorizontalOptions="Center" />
+                   Text="Nota: --"
+                   TextColor="White"
+                   FontSize="48"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center" />
+
+         
+
+            <!-- Indicador de cents -->
             <Grid WidthRequest="320">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -56,12 +93,14 @@
                 <Label Grid.Column="2" Text="+50" TextColor="White" FontSize="18" VerticalOptions="Center" />
             </Grid>
 
+            <!-- Barra visual -->
             <Grid x:Name="TuningBarGrid"
                   WidthRequest="320"
                   HeightRequest="50"
                   HorizontalOptions="Center"
                   VerticalOptions="Center">
                 <Grid.ColumnDefinitions>
+                    <!-- 25 colunas -->
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
@@ -88,18 +127,21 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <BoxView Grid.Column="0" Color="#444" WidthRequest="6" HeightRequest="40" CornerRadius="3" VerticalOptions="End" />
-                <BoxView Grid.Column="1" Color="#444" WidthRequest="6" HeightRequest="40" CornerRadius="3" VerticalOptions="End" />
-                <BoxView Grid.Column="2" Color="#444" WidthRequest="6" HeightRequest="40" CornerRadius="3" VerticalOptions="End" />
-                <BoxView Grid.Column="3" Color="#444" WidthRequest="6" HeightRequest="40" CornerRadius="3" VerticalOptions="End" />
-                <BoxView Grid.Column="4" Color="#444" WidthRequest="6" HeightRequest="40" CornerRadius="3" VerticalOptions="End" />
-                <BoxView Grid.Column="5" Color="#444" WidthRequest="6" HeightRequest="40" CornerRadius="3" VerticalOptions="End" />
-                <BoxView Grid.Column="6" Color="#444" WidthRequest="6" HeightRequest="40" CornerRadius="3" VerticalOptions="End" />
-                <BoxView Grid.Column="7" Color="#444" WidthRequest="6" HeightRequest="40" CornerRadius="3" VerticalOptions="End" />
-                <BoxView Grid.Column="8" Color="#444" WidthRequest="6" HeightRequest="40" CornerRadius="3" VerticalOptions="End" />
-                <BoxView Grid.Column="9" Color="#444" WidthRequest="6" HeightRequest="40" CornerRadius="3" VerticalOptions="End" />
+
+                <!-- Barras de referência -->
+                <BoxView Grid.Column="0"  Color="#444" WidthRequest="6" HeightRequest="40" CornerRadius="3" VerticalOptions="End" />
+                <BoxView Grid.Column="1"  Color="#444" WidthRequest="6" HeightRequest="40" CornerRadius="3" VerticalOptions="End" />
+                <BoxView Grid.Column="2"  Color="#444" WidthRequest="6" HeightRequest="40" CornerRadius="3" VerticalOptions="End" />
+                <BoxView Grid.Column="3"  Color="#444" WidthRequest="6" HeightRequest="40" CornerRadius="3" VerticalOptions="End" />
+                <BoxView Grid.Column="4"  Color="#444" WidthRequest="6" HeightRequest="40" CornerRadius="3" VerticalOptions="End" />
+                <BoxView Grid.Column="5"  Color="#444" WidthRequest="6" HeightRequest="40" CornerRadius="3" VerticalOptions="End" />
+                <BoxView Grid.Column="6"  Color="#444" WidthRequest="6" HeightRequest="40" CornerRadius="3" VerticalOptions="End" />
+                <BoxView Grid.Column="7"  Color="#444" WidthRequest="6" HeightRequest="40" CornerRadius="3" VerticalOptions="End" />
+                <BoxView Grid.Column="8"  Color="#444" WidthRequest="6" HeightRequest="40" CornerRadius="3" VerticalOptions="End" />
+                <BoxView Grid.Column="9"  Color="#444" WidthRequest="6" HeightRequest="40" CornerRadius="3" VerticalOptions="End" />
                 <BoxView Grid.Column="10" Color="#444" WidthRequest="6" HeightRequest="40" CornerRadius="3" VerticalOptions="End" />
-                <BoxView Grid.Column="11" Color="#444" WidthRequest="6" HeightRequest="50" CornerRadius="3" VerticalOptions="End" /> <BoxView Grid.Column="12" Color="#444" WidthRequest="6" HeightRequest="40" CornerRadius="3" VerticalOptions="End" />
+                <BoxView Grid.Column="11" Color="#444" WidthRequest="6" HeightRequest="50" CornerRadius="3" VerticalOptions="End" />
+                <BoxView Grid.Column="12" Color="#444" WidthRequest="6" HeightRequest="40" CornerRadius="3" VerticalOptions="End" />
                 <BoxView Grid.Column="13" Color="#444" WidthRequest="6" HeightRequest="40" CornerRadius="3" VerticalOptions="End" />
                 <BoxView Grid.Column="14" Color="#444" WidthRequest="6" HeightRequest="40" CornerRadius="3" VerticalOptions="End" />
                 <BoxView Grid.Column="15" Color="#444" WidthRequest="6" HeightRequest="40" CornerRadius="3" VerticalOptions="End" />
@@ -113,18 +155,20 @@
                 <BoxView Grid.Column="23" Color="#444" WidthRequest="6" HeightRequest="40" CornerRadius="3" VerticalOptions="End" />
                 <BoxView Grid.Column="24" Color="#444" WidthRequest="6" HeightRequest="40" CornerRadius="3" VerticalOptions="End" />
 
+                <!-- Indicador de afinação -->
                 <BoxView x:Name="TuningIndicator"
-                         Grid.Column="12" Color="Red"
+                         Grid.Column="12"
+                         Color="Red"
                          WidthRequest="6"
                          HeightRequest="50"
                          CornerRadius="3"
-                         VerticalOptions="End"
-                         TranslationY="0" />
+                         VerticalOptions="End" />
             </Grid>
         </VerticalStackLayout>
 
+        <!-- Botão de afinar -->
         <Button Grid.Row="3"
-                Text="PLUCK A STRING"
+                Text="AFINAR"
                 TextColor="White"
                 BackgroundColor="#2A2A2A"
                 BorderColor="#3A3A3A"
@@ -136,10 +180,23 @@
                 HorizontalOptions="Center"
                 VerticalOptions="Center"
                 WidthRequest="250"
-                Clicked="PluckString_Clicked" /> <VerticalStackLayout Grid.Row="4" HorizontalOptions="Center" VerticalOptions="End" Margin="0,0,0,20">
-            <Label Text="REFERENCE PITCH" TextColor="LightGray" FontSize="14" HorizontalOptions="Center" />
-            <Label x:Name="ReferencePitchLabel" Text="A: 440 Hz" TextColor="White" FontSize="24" FontAttributes="Bold" HorizontalOptions="Center" />
-        </VerticalStackLayout>
+                Clicked="PluckString_Clicked" />
 
+        <!-- Pitch de referência -->
+        <VerticalStackLayout Grid.Row="4"
+                             HorizontalOptions="Center"
+                             VerticalOptions="End"
+                             Margin="0,0,0,20">
+            <Label Text="AFINAÇÃO DE REFERÊNCIA"
+                   TextColor="LightGray"
+                   FontSize="14"
+                   HorizontalOptions="Center" />
+            <Label x:Name="ReferencePitchLabel"
+                   Text="A: 440 Hz"
+                   TextColor="White"
+                   FontSize="24"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center" />
+        </VerticalStackLayout>
     </Grid>
 </ContentPage>

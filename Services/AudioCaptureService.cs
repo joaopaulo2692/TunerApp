@@ -1,4 +1,5 @@
 ﻿using static TunerApp.MainPage;
+using static TunerApp.Services.Enums;
 
 namespace TunerApp.Services;
 
@@ -9,6 +10,7 @@ public class AudioCaptureManager
     private const int SampleRate = 44100;
     private GuitarString? _targetString;
     public event Action<string>? OnNoteDetected;
+    private TuningType _currentTuning = TuningType.Standard;
 
     public AudioCaptureManager(IMicrophoneService microphoneService)
     {
@@ -51,39 +53,36 @@ public class AudioCaptureManager
             }
             else
             {
+                //var noteInfo = NoteDetector.GetNoteInfo(freq);
+                //OnNoteDetected?.Invoke($"{noteInfo.Note} ({noteInfo.Cents:+#;-#;0} cents)");
                 var noteInfo = NoteDetector.GetNoteInfo(freq);
-                OnNoteDetected?.Invoke($"{noteInfo.Note} ({noteInfo.Cents:+#;-#;0} cents)");
+                string guessedString = DetectStringFromFrequency(freq);
+
+                OnNoteDetected?.Invoke($"{noteInfo.Note} ({noteInfo.Cents:+#;-#;0} cents) - Provável corda: {guessedString}");
             }
 
-            //var noteInfo = NoteDetector.GetNoteInfo(freq); // novo método sugerido
-            //OnNoteDetected?.Invoke($"{noteInfo.Note} ({noteInfo.Cents:+#;-#;0} cents)");
-            //var noteInfo = NoteDetector.GetNoteInfo(freq);
-            //OnNoteDetected?.Invoke($"{noteInfo.Note} ({noteInfo.Cents:+#;-#;0} cents)");
-
-            //string guessedString = DetectStringFromFrequency(freq);
-            //OnNoteDetected?.Invoke($"{noteInfo.Note} ({noteInfo.Cents:+#;-#;0} cents) - Corda provável: {guessedString}");
+       
 
 
         });
 
     }
 
+    public void SetTuning(TuningType tuning)
+    {
+        _currentTuning = tuning;
+    }
+
     private string DetectStringFromFrequency(double freq)
     {
-        var strings = new Dictionary<string, double>
-    {
-        { "E2", 82.41 },
-        { "A2", 110.00 },
-        { "D3", 146.83 },
-        { "G3", 196.00 },
-        { "B3", 246.94 },
-        { "E4", 329.63 },
-    };
+        var strings = GuitarTunings.Tunings[_currentTuning];
 
         return strings
-            .OrderBy(pair => Math.Abs(pair.Value - freq))
-            .First().Key;
+    .OrderBy(pair => Math.Abs(pair.Value.Frequency - freq))
+    .First().Key.ToString();
     }
+
+    
 
     private void ApplyHanningWindow(float[] samples)
     {
