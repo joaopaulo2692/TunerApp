@@ -5,13 +5,15 @@
     BackgroundColor="#121212">
 
     <Grid RowDefinitions="Auto, Auto, Auto, *, Auto" ColumnDefinitions="*">
+        <Label Text="Standard" TextColor="White" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
+        <Label Text="Selecione a corda" TextColor="White" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
         <Grid Grid.Row="0" Padding="20">
             <Label Text="Standard" TextColor="White" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
-            <Label Text="[Music]" TextColor="White" FontSize="16" HorizontalOptions="Start" VerticalOptions="Center" />
+            <!--<Label Text="[Music]" TextColor="White" FontSize="16" HorizontalOptions="Start" VerticalOptions="Center" />-->
             <ImageButton Source="settings_icon.png" HorizontalOptions="End" VerticalOptions="Center" WidthRequest="24" HeightRequest="24" BackgroundColor="Transparent" />
         </Grid>
 
-        <Grid Grid.Row="1" Margin="0,30,0,0">
+        <!--<Grid Grid.Row="1" Margin="0,30,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />
@@ -26,7 +28,16 @@
             <Label Grid.Column="3" Text="G" TextColor="White" FontSize="30" FontAttributes="Bold" HorizontalOptions="Center" />
             <Label Grid.Column="4" Text="B" TextColor="White" FontSize="30" FontAttributes="Bold" HorizontalOptions="Center" />
             <Label Grid.Column="5" Text="E" TextColor="White" FontSize="30" FontAttributes="Bold" HorizontalOptions="Center" />
-        </Grid>
+        </Grid>-->
+        <HorizontalStackLayout Margin="10" HorizontalOptions="Center">
+            <Button Text="6ª E" Clicked="OnSelectString" CommandParameter="E6"/>
+            <Button Text="5ª A" Clicked="OnSelectString" CommandParameter="A5"/>
+            <Button Text="4ª D" Clicked="OnSelectString" CommandParameter="D4"/>
+            <Button Text="3ª G" Clicked="OnSelectString" CommandParameter="G3"/>
+            <Button Text="2ª B" Clicked="OnSelectString" CommandParameter="B2"/>
+            <Button Text="1ª E" Clicked="OnSelectString" CommandParameter="E1"/>
+        </HorizontalStackLayout>
+
 
         <VerticalStackLayout Grid.Row="2" HorizontalOptions="Center" Spacing="10" Margin="0,50,0,0">
             <Label x:Name="DetectedNoteLabel"

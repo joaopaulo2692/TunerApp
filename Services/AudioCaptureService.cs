@@ -1,11 +1,13 @@
-﻿namespace TunerApp.Services;
+﻿using static TunerApp.MainPage;
+
+namespace TunerApp.Services;
 
 public class AudioCaptureManager
 {
     private readonly IMicrophoneService _microphoneService;
     private readonly FrequencyAnalyzer _analyzer = new();
     private const int SampleRate = 44100;
-
+    private GuitarString? _targetString;
     public event Action<string>? OnNoteDetected;
 
     public AudioCaptureManager(IMicrophoneService microphoneService)
@@ -14,9 +16,13 @@ public class AudioCaptureManager
     }
 
 
-
+    public void SetTargetString(GuitarString? guitarString)
+    {
+        _targetString = guitarString;
+    }
     public async Task Start()
     {
+
         await _microphoneService.StartRecordingAsync(buffer =>
         {
             float[] samples = ConvertToFloat(buffer);
@@ -36,12 +42,49 @@ public class AudioCaptureManager
                 OnNoteDetected?.Invoke("Sem Sinal");
                 return;
             }
+            if (_targetString != null)
+            {
+                var target = GuitarTuning.StandardTuning[_targetString.Value];
+                int cents = (int)(1200 * Math.Log2(freq / target.Frequency));
+                string note = NoteDetector.GetNoteInfo(freq).Note;
+                OnNoteDetected?.Invoke($"{note} ({cents:+#;-#;0} cents)");
+            }
+            else
+            {
+                var noteInfo = NoteDetector.GetNoteInfo(freq);
+                OnNoteDetected?.Invoke($"{noteInfo.Note} ({noteInfo.Cents:+#;-#;0} cents)");
+            }
 
-            var noteInfo = NoteDetector.GetNoteInfo(freq); // novo método sugerido
-            OnNoteDetected?.Invoke($"{noteInfo.Note} ({noteInfo.Cents:+#;-#;0} cents)");
+            //var noteInfo = NoteDetector.GetNoteInfo(freq); // novo método sugerido
+            //OnNoteDetected?.Invoke($"{noteInfo.Note} ({noteInfo.Cents:+#;-#;0} cents)");
+            //var noteInfo = NoteDetector.GetNoteInfo(freq);
+            //OnNoteDetected?.Invoke($"{noteInfo.Note} ({noteInfo.Cents:+#;-#;0} cents)");
+
+            //string guessedString = DetectStringFromFrequency(freq);
+            //OnNoteDetected?.Invoke($"{noteInfo.Note} ({noteInfo.Cents:+#;-#;0} cents) - Corda provável: {guessedString}");
+
+
         });
 
     }
+
+    private string DetectStringFromFrequency(double freq)
+    {
+        var strings = new Dictionary<string, double>
+    {
+        { "E2", 82.41 },
+        { "A2", 110.00 },
+        { "D3", 146.83 },
+        { "G3", 196.00 },
+        { "B3", 246.94 },
+        { "E4", 329.63 },
+    };
+
+        return strings
+            .OrderBy(pair => Math.Abs(pair.Value - freq))
+            .First().Key;
+    }
+
     private void ApplyHanningWindow(float[] samples)
     {
         int N = samples.Length;

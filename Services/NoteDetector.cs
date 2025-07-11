@@ -1,38 +1,40 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TunerApp.Services
+﻿public class NoteInfo
 {
-    public static class NoteDetector
+    public string Note { get; set; } = "";
+    public int Cents { get; set; }
+    public int Octave { get; set; }
+    public double Frequency { get; set; }
+}
+
+public static class NoteDetector
+{
+    private static readonly string[] NoteNames = { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
+    private const double A4Frequency = 440.0;
+    private const int A4Index = 69; // MIDI index
+
+    public static NoteInfo GetNoteInfo(double frequency)
     {
-        static readonly string[] Notes = { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
-        public record NoteInfo(string Note, double Cents, double Frequency);
+        if (frequency <= 0)
+            return new NoteInfo { Note = "?" };
 
-        public static string GetNoteFromFrequency(double frequency)
+        // Calcular o número da nota baseado no padrão MIDI (A4 = 69)
+        double noteNumber = 69 + 12 * Math.Log2(frequency / A4Frequency);
+        int roundedNoteNumber = (int)Math.Round(noteNumber);
+
+        //int noteIndex = (roundedNoteNumber + 3) % 12; // +3 para alinhar com C=0
+        int noteIndex = roundedNoteNumber % 12;
+
+        int octave = (roundedNoteNumber / 12) - 1;
+
+        string noteName = NoteNames[noteIndex];
+        int cents = (int)Math.Round((noteNumber - roundedNoteNumber) * 100);
+
+        return new NoteInfo
         {
-            if (frequency <= 0) return "Sem sinal";
-
-            int noteNumber = (int)Math.Round(12 * Math.Log2(frequency / 440.0)) + 69;
-            int octave = noteNumber / 12 - 1;
-            string note = Notes[noteNumber % 12];
-            return $"{note}{octave}";
-        }
-        public static NoteInfo GetNoteInfo(double frequency)
-        {
-            double a4 = 440.0;
-            double semitones = 12 * Math.Log2(frequency / a4);
-            int roundedSemitone = (int)Math.Round(semitones);
-            int noteIndex = (roundedSemitone + 9) % 12; // +9 para que A = 0
-            string note = Notes[(noteIndex + 12) % 12]; // evita índices negativos
-
-            double noteFreq = a4 * Math.Pow(2, roundedSemitone / 12.0);
-            double cents = 1200 * Math.Log2(frequency / noteFreq);
-
-            return new NoteInfo(note, cents, frequency);
-        }
-
+            Note = $"{noteName}{octave}",
+            Octave = octave,
+            Cents = cents,
+            Frequency = frequency
+        };
     }
 }

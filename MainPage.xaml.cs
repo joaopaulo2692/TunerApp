@@ -22,7 +22,9 @@ public partial class MainPage : ContentPage
                 DetectedNoteLabel.Text = $"Nota: {note}";
 
                 // Extrai o valor em cents (caso queira usar a barra)
-                var match = Regex.Match(note, @"([A-G]#?)\s*\(([-+0-9]+)\s*cents\)");
+                //var match = Regex.Match(note, @"([A-G]#?)\s*\(([-+0-9]+)\s*cents\)");
+                var match = Regex.Match(note, @"([A-G]#?\d)\s*\(([-+0-9]+)\s*cents\)");
+
                 if (match.Success)
                 {
                     int cents = int.Parse(match.Groups[2].Value);
@@ -47,24 +49,41 @@ public partial class MainPage : ContentPage
         }
     }
 
-    //private void PluckString_Clicked(object sender, EventArgs e)
-    //{
-    //    // This is where you put the logic for when the "PLUCK A STRING" button is clicked.
-    //    // For example, you might want to start the tuner here, or display a message.
-       
+    public enum GuitarString
+    {
+        E6, // E2 - 82.41Hz
+        A5, // A2 - 110.00Hz
+        D4, // D3 - 146.83Hz
+        G3, // G3 - 196.00Hz
+        B2, // B3 - 246.94Hz
+        E1  // E4 - 329.63Hz
+    }
 
-    //    // You might also want to start the audio manager if it's not already running
-    //    // If your original "StartTuner_Clicked" button is being replaced, you can move its logic here:
-    //    // try
-    //    // {
-    //    //     await _audioManager.Start();
-    //    // }
-    //    // catch (Exception ex)
-    //    // {
-    //    //     Console.WriteLine($"Erro ao iniciar afinador: {ex.Message}");
-    //    //     DisplayAlert("Erro", ex.Message, "OK");
-    //    // }
-    //}
+    private GuitarString? selectedString;
+
+    private void OnSelectString(object sender, EventArgs e)
+    {
+        if (sender is Button button && Enum.TryParse<GuitarString>(button.CommandParameter?.ToString(), out var selected))
+        {
+            selectedString = selected;
+            var (note, freq) = GuitarTuning.StandardTuning[selected];
+            ReferencePitchLabel.Text = $"Afine para: {note} ({freq} Hz)";
+        }
+    }
+
+    public static class GuitarTuning
+    {
+        public static readonly Dictionary<GuitarString, (string Note, double Frequency)> StandardTuning = new()
+    {
+        { GuitarString.E6, ("E2", 82.41) },
+        { GuitarString.A5, ("A2", 110.00) },
+        { GuitarString.D4, ("D3", 146.83) },
+        { GuitarString.G3, ("G3", 196.00) },
+        { GuitarString.B2, ("B3", 246.94) },
+        { GuitarString.E1, ("E4", 329.63) },
+    };
+    }
+
 
     private void UpdateTuningBar(int cents)
     {
