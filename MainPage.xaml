@@ -2,6 +2,7 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     x:Class="TunerApp.MainPage"
+    Title="Afinador"
     BackgroundColor="#121212">
 
     <Grid RowDefinitions="Auto, Auto, Auto, *, Auto" ColumnDefinitions="*">
@@ -195,7 +196,7 @@
 
 
         <!-- Pitch de referência -->
-        <VerticalStackLayout Grid.Row="4"
+        <!--<VerticalStackLayout Grid.Row="4"
                      HorizontalOptions="Center"
                      VerticalOptions="End"
                      Margin="0,0,0,20"
@@ -220,13 +221,61 @@
             ValueChanged="PitchSlider_ValueChanged"
             WidthRequest="250" />
 
-            <!-- Novo Label para mostrar info da corda -->
+            --><!-- Novo Label para mostrar info da corda --><!--
             <Label x:Name="SelectedStringTargetLabel"
            Text=""
            TextColor="LightBlue"
            FontSize="18"
            HorizontalOptions="Center" />
 
+        </VerticalStackLayout>-->
+
+        <VerticalStackLayout Grid.Row="4"
+                     HorizontalOptions="Center"
+                     VerticalOptions="End"
+                     Margin="0,0,0,20"
+                     Spacing="10">
+
+            <Label Text="AFINAÇÃO DE REFERÊNCIA"
+           TextColor="LightGray"
+           FontSize="14"
+           HorizontalOptions="Center" />
+
+            <Label x:Name="ReferencePitchLabel"
+           Text="A: 440 Hz"
+           TextColor="White"
+           FontSize="24"
+           FontAttributes="Bold"
+           HorizontalOptions="Center" />
+
+            <HorizontalStackLayout HorizontalOptions="Center" Spacing="10">
+                <Button Text="–"
+                WidthRequest="40"
+                Clicked="DecreasePitch_Clicked"
+                BackgroundColor="#333"
+                TextColor="White"
+                FontAttributes="Bold" />
+
+                <Slider x:Name="PitchSlider"
+                Minimum="430"
+                Maximum="450"
+                Value="440"
+                ValueChanged="PitchSlider_ValueChanged"
+                WidthRequest="250" />
+
+                <Button Text="+"
+                WidthRequest="40"
+                Clicked="IncreasePitch_Clicked"
+                BackgroundColor="#333"
+                TextColor="White"
+                FontAttributes="Bold" />
+
+                <Label x:Name="SelectedStringTargetLabel"
+ Text=""
+ TextColor="LightBlue"
+ FontSize="18"
+ HorizontalOptions="Center" />
+            </HorizontalStackLayout>
         </VerticalStackLayout>
 
     </Grid>

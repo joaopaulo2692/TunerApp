@@ -14,8 +14,11 @@ public partial class MainPage : ContentPage
     private bool _userChangedReferencePitch = false;
     private GuitarString? selectedString;
 
+
     public MainPage(AudioCaptureManager audioManager)
     {
+        Title = "Afinador";
+
         InitializeComponent();
 
         _audioManager = audioManager;
@@ -100,9 +103,45 @@ public partial class MainPage : ContentPage
     {
         _userChangedReferencePitch = true;
         _referencePitch = Math.Round(e.NewValue, 1);
+
         ReferencePitchLabel.Text = $"A: {_referencePitch} Hz";
         _audioManager.ReferenceA4Frequency = _referencePitch;
+
+        // Se uma corda já foi selecionada antes, atualize a frequência dela
+        if (selectedString.HasValue)
+        {
+            UpdateSelectedStringLabel();
+        }
     }
+
+    private void IncreasePitch_Clicked(object sender, EventArgs e)
+    {
+        double newValue = Math.Min(PitchSlider.Value + 0.1, PitchSlider.Maximum);
+        PitchSlider.Value = Math.Round(newValue, 1); // Vai disparar o ValueChanged
+    }
+
+    private void DecreasePitch_Clicked(object sender, EventArgs e)
+    {
+        double newValue = Math.Max(PitchSlider.Value - 0.1, PitchSlider.Minimum);
+        PitchSlider.Value = Math.Round(newValue, 1); // Vai disparar o ValueChanged
+    }
+
+
+    private void UpdateSelectedStringLabel()
+    {
+        var tuning = GuitarTunings.Tunings[currentTuning];
+        var target = tuning[selectedString.Value];
+
+        double freqToShow = target.Frequency;
+
+        if (_userChangedReferencePitch)
+        {
+            freqToShow *= (_referencePitch / 440.0);
+        }
+
+        SelectedStringTargetLabel.Text = $"Afine para: {target.Note} ({freqToShow:F2} Hz)";
+    }
+
 
     private void OnSelectString(object sender, EventArgs e)
     {
