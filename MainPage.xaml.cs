@@ -34,28 +34,48 @@ public partial class MainPage : ContentPage
             });
         };
     }
-
-    private void TuningPicker_SelectedIndexChanged(object sender, EventArgs e)
+    private void ToggleTuningList(object sender, EventArgs e)
     {
-        if (TuningPicker.SelectedIndex == -1)
-            return;
-
-        string selectedTuning = TuningPicker.Items[TuningPicker.SelectedIndex];
-        SelectedTuningLabel.Text = $"Afinação: {selectedTuning}";
-        TuningPicker.IsVisible = false;
-
-        // Atualize a afinação no AudioCaptureManager
-        var tuningEnum = Enum.Parse<TuningType>(selectedTuning.Replace(" ", ""));
-        _audioManager.SetTuning(tuningEnum);
-
-        // Atualiza botões de cordas com base na afinação selecionada
-        UpdateStringButtons(tuningEnum);
+        TuningOptionsList.IsVisible = !TuningOptionsList.IsVisible;
     }
 
-    private void ToggleTuningPicker(object sender, EventArgs e)
+    private void TuningOptionsList_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        TuningPicker.IsVisible = !TuningPicker.IsVisible;
+        if (e.CurrentSelection.FirstOrDefault() is string selectedTuning)
+        {
+            SelectedTuningLabel.Text = $"Afinação: {selectedTuning}";
+            TuningOptionsList.IsVisible = false;
+
+            if (Enum.TryParse<TuningType>(selectedTuning, out var tuningEnum))
+            {
+                _audioManager.SetTuning(tuningEnum);
+                UpdateStringButtons(tuningEnum);
+            }
+        }
     }
+
+
+    //private void TuningPicker_SelectedIndexChanged(object sender, EventArgs e)
+    //{
+    //    if (TuningPicker.SelectedIndex == -1)
+    //        return;
+
+    //    string selectedTuning = TuningPicker.Items[TuningPicker.SelectedIndex];
+    //    SelectedTuningLabel.Text = $"Afinação: {selectedTuning}";
+    //    TuningPicker.IsVisible = false;
+
+    //    // Atualize a afinação no AudioCaptureManager
+    //    var tuningEnum = Enum.Parse<TuningType>(selectedTuning.Replace(" ", ""));
+    //    _audioManager.SetTuning(tuningEnum);
+
+    //    // Atualiza botões de cordas com base na afinação selecionada
+    //    UpdateStringButtons(tuningEnum);
+    //}
+
+    //private void ToggleTuningPicker(object sender, EventArgs e)
+    //{
+    //    TuningPicker.IsVisible = !TuningPicker.IsVisible;
+    //}
 
 
 

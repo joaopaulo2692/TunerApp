@@ -24,31 +24,41 @@
            HorizontalOptions="Start" />
 
             <!-- Botão para mostrar Picker -->
+            <!-- Botão para exibir a lista de afinações -->
             <Button Text="Alterar Afinação"
-            Grid.Row="0"
-            HorizontalOptions="End"
-            Clicked="ToggleTuningPicker"
-            BackgroundColor="Transparent"
-            TextColor="LightBlue" />
+        Grid.Row="0"
+        HorizontalOptions="End"
+        Clicked="ToggleTuningList"
+        BackgroundColor="Transparent"
+        TextColor="LightBlue" />
 
-            <!-- Picker visível somente após clicar no botão -->
-            <Picker x:Name="TuningPicker"
-            Grid.Row="1"
-            Title="Selecione a Afinação"
-            SelectedIndexChanged="TuningPicker_SelectedIndexChanged"
-            IsVisible="False"
-            TextColor="White"
-            BackgroundColor="#1E1E1E">
-                <Picker.ItemsSource>
+            <!-- Lista de afinações simulando um menu -->
+            <CollectionView x:Name="TuningOptionsList"
+                IsVisible="False"
+                Grid.Row="1"
+                SelectionMode="Single"
+                SelectionChanged="TuningOptionsList_SelectionChanged"
+                BackgroundColor="#1E1E1E"
+                Margin="10">
+                <CollectionView.ItemsSource>
                     <x:Array Type="{x:Type x:String}">
                         <x:String>Standard</x:String>
                         <x:String>HalfStepDown</x:String>
                         <x:String>OpenD</x:String>
                         <x:String>OpenG</x:String>
                     </x:Array>
-                </Picker.ItemsSource>
+                </CollectionView.ItemsSource>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Label Text="{Binding}"
+                   Padding="10"
+                   TextColor="White"
+                   FontSize="16" />
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
 
-            </Picker>
+
         </Grid>
 
 
