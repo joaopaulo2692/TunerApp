@@ -149,6 +149,7 @@ public partial class MainPage : ContentPage
             Enum.TryParse<GuitarString>(button.CommandParameter?.ToString(), out var selected))
         {
             selectedString = selected;
+            _audioManager.SetTargetString(selected);
 
             var tuning = GuitarTunings.Tunings[currentTuning];
             var target = tuning[selected];

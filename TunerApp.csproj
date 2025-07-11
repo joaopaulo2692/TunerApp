@@ -54,7 +54,9 @@
 
 		<!-- Custom Fonts -->
 		<MauiFont Include="Resources\Fonts\*" />
-
+		<MauiAsset Include="Platforms\Android\Resources\Raw\tuned.mp3">
+		  <LogicalName>%(RecursiveDir)%(Filename)%(Extension)</LogicalName>
+		</MauiAsset>
 		<!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
 		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
 	</ItemGroup>

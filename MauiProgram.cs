@@ -21,6 +21,14 @@ public static class MauiProgram
 
         builder.Services.AddSingleton<AudioCaptureManager>();
         builder.Services.AddSingleton<MainPage>();
+        builder.Services.AddSingleton<ISoundPlayer>(provider =>
+        {
+#if ANDROID
+            return new TunerApp.Platforms.Android.SoundPlayer();
+#else
+            throw new NotImplementedException("ISoundPlayer não implementado nesta plataforma.");
+#endif
+        });
 
         return builder.Build();
     }

@@ -1,4 +1,5 @@
-﻿using static TunerApp.MainPage;
+﻿using Plugin.Maui.Audio;
+using static TunerApp.MainPage;
 using static TunerApp.Services.Enums;
 
 namespace TunerApp.Services;
@@ -10,9 +11,9 @@ public class AudioCaptureManager
     private const int SampleRate = 44100;
     private GuitarString? _targetString;
     public event Action<string>? OnNoteDetected;
-
+    private IAudioPlayer? _tunedSound;
     private TuningType _currentTuning = TuningType.Standard;
-
+    private readonly ISoundPlayer _soundPlayer;
     // Frequência de referência ajustável (padrão 440 Hz)
     private double _referenceA4Frequency = 440.0;
     public double ReferenceA4Frequency
@@ -28,9 +29,10 @@ public class AudioCaptureManager
         }
     }
 
-    public AudioCaptureManager(IMicrophoneService microphoneService)
+    public AudioCaptureManager(IMicrophoneService microphoneService, ISoundPlayer soundPlayer)
     {
         _microphoneService = microphoneService ?? throw new ArgumentNullException(nameof(microphoneService));
+        _soundPlayer = soundPlayer;
     }
 
     public void SetTargetString(GuitarString? guitarString)
@@ -43,8 +45,61 @@ public class AudioCaptureManager
         _currentTuning = tuning;
     }
 
+    //public async Task Start()
+    //{
+    //    await _microphoneService.StartRecordingAsync(buffer =>
+    //    {
+    //        float[] samples = ConvertToFloat(buffer);
+    //        ApplyHanningWindow(samples);
+
+    //        float amplitude = samples.Select(x => Math.Abs(x)).Average();
+    //        if (amplitude < 0.01f)
+    //        {
+    //            OnNoteDetected?.Invoke("Sem Sinal");
+    //            return;
+    //        }
+
+    //        double freq = _analyzer.DetectFrequency(samples, SampleRate);
+    //        if (double.IsNaN(freq) || freq <= 0)
+    //        {
+    //            OnNoteDetected?.Invoke("Sem Sinal");
+    //            return;
+    //        }
+
+    //        if (_targetString != null)
+    //        {
+    //            var target = GuitarTunings.Tunings[_currentTuning][_targetString.Value];
+
+    //            // Ajusta frequência da nota alvo conforme referência
+    //            double adjustedFrequency = target.Frequency * (_referenceA4Frequency / 440.0);
+
+    //            int cents = (int)(1200 * Math.Log2(freq / adjustedFrequency));
+    //            string note = NoteDetector.GetNoteInfo(freq, _referenceA4Frequency).Note;
+    //            OnNoteDetected?.Invoke($"{note} ({cents:+#;-#;0} cents)");
+    //        }
+    //        else
+    //        {
+    //            var noteInfo = NoteDetector.GetNoteInfo(freq, _referenceA4Frequency);
+    //            string guessedString = DetectStringFromFrequency(freq);
+    //            OnNoteDetected?.Invoke($"{noteInfo.Note} ({noteInfo.Cents:+#;-#;0} cents)");
+    //        }
+    //    });
+    //}
+
+
     public async Task Start()
     {
+        if (_tunedSound == null)
+        {
+            _soundPlayer.PlayTunedSound();
+            //var audioManager = AudioManager.Current;
+            //var stream = await FileSystem.OpenAppPackageFileAsync("tuned.mp3");
+            //var player = AudioManager.Current.CreatePlayer(stream);
+            //player.Play();
+
+            //_tunedSound = audioManager.CreatePlayer(stream);
+        }
+
         await _microphoneService.StartRecordingAsync(buffer =>
         {
             float[] samples = ConvertToFloat(buffer);
@@ -63,26 +118,34 @@ public class AudioCaptureManager
                 OnNoteDetected?.Invoke("Sem Sinal");
                 return;
             }
-
+           
             if (_targetString != null)
             {
                 var target = GuitarTunings.Tunings[_currentTuning][_targetString.Value];
-
-                // Ajusta frequência da nota alvo conforme referência
                 double adjustedFrequency = target.Frequency * (_referenceA4Frequency / 440.0);
-
                 int cents = (int)(1200 * Math.Log2(freq / adjustedFrequency));
+
+                // 🎯 Se afinado corretamente (dentro de ±5 cents), toca som
+                Console.WriteLine($"[DEBUG] Freq: {freq:F2} | Target: {adjustedFrequency:F2} | Cents: {cents}");
+
+                if (Math.Abs(cents) <= 5)
+                {
+                    _soundPlayer.PlayTunedSound();
+                    
+                }
+
+
                 string note = NoteDetector.GetNoteInfo(freq, _referenceA4Frequency).Note;
                 OnNoteDetected?.Invoke($"{note} ({cents:+#;-#;0} cents)");
             }
             else
             {
                 var noteInfo = NoteDetector.GetNoteInfo(freq, _referenceA4Frequency);
-                string guessedString = DetectStringFromFrequency(freq);
                 OnNoteDetected?.Invoke($"{noteInfo.Note} ({noteInfo.Cents:+#;-#;0} cents)");
             }
         });
     }
+
 
     private string DetectStringFromFrequency(double freq)
     {
