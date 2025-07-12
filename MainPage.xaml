@@ -108,10 +108,10 @@
 
             <!-- Barra visual -->
             <Grid x:Name="TuningBarGrid"
-                  WidthRequest="320"
-                  HeightRequest="50"
-                  HorizontalOptions="Center"
-                  VerticalOptions="Center">
+      WidthRequest="320"
+      HeightRequest="60"
+      HorizontalOptions="Center"
+      VerticalOptions="Center">
                 <Grid.ColumnDefinitions>
                     <!-- 25 colunas -->
                     <ColumnDefinition Width="*" />
@@ -141,7 +141,9 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
-                <!-- Barras de referência -->
+                <!-- Barras de referência (colunas 0 a 24) -->
+                <!-- Todas são padrão, exceto colunas 10 a 14 -->
+                <!-- Zona aceitável: colunas 10, 11, 13, 14 -->
                 <BoxView Grid.Column="0"  Color="#444" WidthRequest="6" HeightRequest="40" CornerRadius="3" VerticalOptions="End" />
                 <BoxView Grid.Column="1"  Color="#444" WidthRequest="6" HeightRequest="40" CornerRadius="3" VerticalOptions="End" />
                 <BoxView Grid.Column="2"  Color="#444" WidthRequest="6" HeightRequest="40" CornerRadius="3" VerticalOptions="End" />
@@ -152,11 +154,19 @@
                 <BoxView Grid.Column="7"  Color="#444" WidthRequest="6" HeightRequest="40" CornerRadius="3" VerticalOptions="End" />
                 <BoxView Grid.Column="8"  Color="#444" WidthRequest="6" HeightRequest="40" CornerRadius="3" VerticalOptions="End" />
                 <BoxView Grid.Column="9"  Color="#444" WidthRequest="6" HeightRequest="40" CornerRadius="3" VerticalOptions="End" />
-                <BoxView Grid.Column="10" Color="#444" WidthRequest="6" HeightRequest="40" CornerRadius="3" VerticalOptions="End" />
-                <BoxView Grid.Column="11" Color="#444" WidthRequest="6" HeightRequest="50" CornerRadius="3" VerticalOptions="End" />
-                <BoxView Grid.Column="12" Color="#444" WidthRequest="6" HeightRequest="40" CornerRadius="3" VerticalOptions="End" />
-                <BoxView Grid.Column="13" Color="#444" WidthRequest="6" HeightRequest="40" CornerRadius="3" VerticalOptions="End" />
-                <BoxView Grid.Column="14" Color="#444" WidthRequest="6" HeightRequest="40" CornerRadius="3" VerticalOptions="End" />
+
+                <!-- Zona de afinação (visual) -->
+                <BoxView Grid.Column="10" Color="#225522" WidthRequest="6" HeightRequest="50" CornerRadius="3" VerticalOptions="End" />
+                <BoxView Grid.Column="11" Color="#225522" WidthRequest="6" HeightRequest="50" CornerRadius="3" VerticalOptions="End" />
+
+                <!-- Coluna central -->
+                <BoxView Grid.Column="12" Color="White" WidthRequest="8" HeightRequest="60" CornerRadius="4" VerticalOptions="End" />
+
+                <!-- Zona de afinação (visual) -->
+                <BoxView Grid.Column="13" Color="#225522" WidthRequest="6" HeightRequest="50" CornerRadius="3" VerticalOptions="End" />
+                <BoxView Grid.Column="14" Color="#225522" WidthRequest="6" HeightRequest="50" CornerRadius="3" VerticalOptions="End" />
+
+                <!-- Restante das colunas -->
                 <BoxView Grid.Column="15" Color="#444" WidthRequest="6" HeightRequest="40" CornerRadius="3" VerticalOptions="End" />
                 <BoxView Grid.Column="16" Color="#444" WidthRequest="6" HeightRequest="40" CornerRadius="3" VerticalOptions="End" />
                 <BoxView Grid.Column="17" Color="#444" WidthRequest="6" HeightRequest="40" CornerRadius="3" VerticalOptions="End" />
@@ -170,13 +180,14 @@
 
                 <!-- Indicador de afinação -->
                 <BoxView x:Name="TuningIndicator"
-                         Grid.Column="12"
-                         Color="Red"
-                         WidthRequest="6"
-                         HeightRequest="50"
-                         CornerRadius="3"
-                         VerticalOptions="End" />
+             Grid.Column="12"
+             Color="Red"
+             WidthRequest="6"
+             HeightRequest="50"
+             CornerRadius="3"
+             VerticalOptions="End" />
             </Grid>
+
         </VerticalStackLayout>
 
         <!-- Botão de afinar -->

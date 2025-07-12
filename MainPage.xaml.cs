@@ -189,10 +189,19 @@ public partial class MainPage : ContentPage
         int targetColumn = (int)Math.Round(percent * (TuningBarGrid.ColumnDefinitions.Count - 1));
         Grid.SetColumn(TuningIndicator, targetColumn);
 
+        //double abs = Math.Abs(cents);
+        //TuningIndicator.Color = abs < 5 ? Colors.LimeGreen
+        //                     : abs < 15 ? Colors.Orange
+        //                                : Colors.Red;
+
         double abs = Math.Abs(cents);
         TuningIndicator.Color = abs < 5 ? Colors.LimeGreen
                              : abs < 15 ? Colors.Orange
                                         : Colors.Red;
+
+        TuningIndicator.WidthRequest = abs < 5 ? 10 : 6;
+        TuningIndicator.HeightRequest = abs < 5 ? 60 : 50;
+
     }
 
     private async void StartTuner_Clicked(object sender, EventArgs e)
