@@ -13,6 +13,7 @@ public partial class MainPage : ContentPage
     private double _referencePitch = 440.0;
     private bool _userChangedReferencePitch = false;
     private GuitarString? selectedString;
+    private Button selectedStringButton;
 
 
     public MainPage(AudioCaptureManager audioManager)
@@ -158,7 +159,21 @@ public partial class MainPage : ContentPage
         if (sender is Button button &&
             Enum.TryParse<GuitarString>(button.CommandParameter?.ToString(), out var selected))
         {
-            selectedString = selected;
+            // Resetar botão anterior
+            if (selectedStringButton != null)
+            {
+                selectedStringButton.FontSize = 14;
+                selectedStringButton.Padding = new Thickness(6, 4);
+                selectedStringButton.Scale = 1.0;
+
+            }
+
+            // Aplicar destaque no botão clicado (corrigido aqui)
+            button.FontSize = 18;
+            button.Padding = new Thickness(8, 6);
+            button.Scale = 1.1;
+            selectedStringButton = button;
+
             _audioManager.SetTargetString(selected);
 
             var tuning = GuitarTunings.Tunings[currentTuning];
@@ -171,10 +186,10 @@ public partial class MainPage : ContentPage
                 freqToShow *= (_referencePitch / 440.0);
             }
 
-            // NÃO altere o ReferencePitchLabel!
             SelectedStringTargetLabel.Text = $"Afine para: {target.Note} ({freqToShow:F2} Hz)";
         }
     }
+
 
 
 
