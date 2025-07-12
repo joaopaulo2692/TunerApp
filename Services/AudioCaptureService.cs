@@ -16,6 +16,10 @@ public class AudioCaptureManager
     private readonly ISoundPlayer _soundPlayer;
     // Frequência de referência ajustável (padrão 440 Hz)
     private double _referenceA4Frequency = 440.0;
+
+    private DateTime _lastTunedSoundTime = DateTime.MinValue;
+    private readonly TimeSpan _tunedSoundCooldown = TimeSpan.FromSeconds(4);
+
     public double ReferenceA4Frequency
     {
         get => _referenceA4Frequency;
@@ -130,11 +134,15 @@ public class AudioCaptureManager
 
                 if (Math.Abs(cents) <= 5)
                 {
-                    _soundPlayer.PlayTunedSound();
-                    
+                    if (DateTime.Now - _lastTunedSoundTime > _tunedSoundCooldown)
+                    {
+                        _soundPlayer.PlayTunedSound();
+                        _lastTunedSoundTime = DateTime.Now;
+                    }
+
                 }
-
-
+                
+                
                 string note = NoteDetector.GetNoteInfo(freq, _referenceA4Frequency).Note;
                 OnNoteDetected?.Invoke($"{note} ({cents:+#;-#;0} cents)");
             }
