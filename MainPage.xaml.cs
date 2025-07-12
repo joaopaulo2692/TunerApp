@@ -33,7 +33,17 @@ public partial class MainPage : ContentPage
         {
             MainThread.BeginInvokeOnMainThread(() =>
             {
-                DetectedNoteLabel.Text = $"Nota: {note}";
+                //DetectedNoteLabel.Text = $"Nota: {note}";
+                var matchNote = Regex.Match(note, @"([A-G]#?\d)");
+                if (matchNote.Success)
+                {
+                    DetectedNoteLabel.Text = matchNote.Groups[1].Value;
+                }
+                else
+                {
+                    DetectedNoteLabel.Text = note; // fallback (caso não case a regex)
+                }
+                //DetectedNoteLabel.Text = note;
 
                 var match = Regex.Match(note, @"([A-G]#?\d)\s*\(([-+0-9]+)\s*cents\)");
                 if (match.Success)

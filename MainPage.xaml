@@ -85,13 +85,15 @@
         <VerticalStackLayout Grid.Row="2" HorizontalOptions="Center" Spacing="10" Margin="0,50,0,0">
 
             <Label x:Name="DetectedNoteLabel"
-                   Text="Nota: --"
-                   TextColor="White"
-                   FontSize="25"
-                   FontAttributes="Bold"
-                   HorizontalOptions="Center" />
+       Text="Nota: --"
+       TextColor="GreenYellow"
+       FontSize="80"
+       FontAttributes="Bold"
+       HorizontalOptions="Center"
+       FontFamily="DigitalFont" />
 
-         
+
+
 
             <!-- Indicador de cents -->
             <Grid WidthRequest="320">

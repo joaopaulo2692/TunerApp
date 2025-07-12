@@ -13,6 +13,11 @@ public static class MauiProgram
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
             });
+        builder
+    .ConfigureFonts(fonts =>
+    {
+        fonts.AddFont("DS-DIGI.TTF", "DigitalFont"); // Nome lógico: DigitalFont
+    });
 
         // Register services
 #if ANDROID

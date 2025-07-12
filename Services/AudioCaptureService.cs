@@ -145,11 +145,13 @@ public class AudioCaptureManager
                 
                 string note = NoteDetector.GetNoteInfo(freq, _referenceA4Frequency).Note;
                 OnNoteDetected?.Invoke($"{note} ({cents:+#;-#;0} cents)");
+                OnNoteDetected?.Invoke(note);
             }
             else
             {
                 var noteInfo = NoteDetector.GetNoteInfo(freq, _referenceA4Frequency);
                 OnNoteDetected?.Invoke($"{noteInfo.Note} ({noteInfo.Cents:+#;-#;0} cents)");
+                //OnNoteDetected?.Invoke(noteInfo.Note);
             }
         });
     }
